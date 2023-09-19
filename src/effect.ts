@@ -1,44 +1,63 @@
 class ReactiveEffect {
   private _fn: any;
+  public scheduler: Function | undefined;
+  deps = [];
+  active = true;
 
-  constructor(fn, public scheduler?) {
+  constructor(fn, scheduler?: Function) {
     this._fn = fn;
+    this.scheduler = scheduler;
   }
 
   run() {
     activeEffect = this;
     return this._fn();
   }
+  stop() {
+    cleanupEffect(this);
+  }
 }
 
 const targetMaps = new WeakMap();
 
 // 获取依赖集合
-function getDeps(target, key) {
-  let depsMap = targetMaps.get(target);
-  if (!depsMap) {
-    depsMap = new Map();
-    targetMaps.set(target, depsMap);
+function getDep(target, key) {
+  let depMap = targetMaps.get(target);
+  if (!depMap) {
+    depMap = new Map();
+    targetMaps.set(target, depMap);
   }
 
-  let deps = depsMap.get(key);
-  if (!deps) {
-    deps = new Set();
-    depsMap.set(key, deps);
+  let dep = depMap.get(key);
+  if (!dep) {
+    dep = new Set();
+    depMap.set(key, dep);
   }
-  return deps;
+  return dep;
+}
+
+function cleanupEffect(effect) {
+  if (effect.active) {
+    effect.deps.forEach((dep) => {
+      dep.delete(effect);
+      effect.active = false;
+    });
+  }
 }
 
 export function track(target, key) {
-  const deps = getDeps(target, key);
+  const dep = getDep(target, key);
 
-  deps.add(activeEffect);
+  if (!activeEffect) return;
+
+  dep.add(activeEffect);
+  activeEffect.deps.push(dep);
 }
 
 export function trigger(target, key) {
-  const deps = getDeps(target, key);
+  const dep = getDep(target, key);
 
-  for (const effect of deps) {
+  for (const effect of dep) {
     if (effect.scheduler) {
       effect.scheduler();
     } else {
@@ -55,5 +74,11 @@ export function effect(fn, options: any = {}) {
   _effect.run();
 
   // 返回 runner，用 bind 绑定 this 指向
-  return _effect.run.bind(_effect);
+  const runner: any = _effect.run.bind(_effect);
+  runner.effect = _effect;
+  return runner;
+}
+
+export function stop(runner) {
+  runner.effect.stop();
 }

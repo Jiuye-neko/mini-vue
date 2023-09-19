@@ -1,4 +1,4 @@
-import { effect } from '../src/effect';
+import { effect, stop } from '../src/effect';
 import { reactive } from '../src/reactive';
 
 describe('effect', () => {
@@ -50,5 +50,24 @@ describe('effect', () => {
 
     run();
     expect(val).toBe(2);
+  });
+  it('stop', () => {
+    const original = reactive({ foo: 1 });
+    let val;
+    const runner = effect(() => {
+      val = original.foo;
+    });
+
+    original.foo = 2;
+    expect(val).toBe(2);
+
+    stop(runner);
+    // original.foo++;
+    // 此处不应用自增，自增触发了 get 导致依赖被重新收集了
+    original.foo = 3;
+    expect(val).toBe(2);
+
+    runner();
+    expect(val).toBe(3);
   });
 });
