@@ -70,4 +70,20 @@ describe('effect', () => {
     runner();
     expect(val).toBe(3);
   });
+
+  it('onStop', () => {
+    const original = reactive({ foo: 1 });
+    let val;
+    const onStop = jest.fn();
+    const runner = effect(
+      () => {
+        val = original.val;
+      },
+      {
+        onStop,
+      }
+    );
+    stop(runner);
+    expect(onStop).toHaveBeenCalledTimes(1);
+  });
 });

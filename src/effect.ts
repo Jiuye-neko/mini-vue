@@ -1,8 +1,11 @@
+import { extend } from './shared';
+
 class ReactiveEffect {
   private _fn: any;
   public scheduler: Function | undefined;
   deps = [];
   active = true;
+  onStop?: () => void;
 
   constructor(fn, scheduler?: Function) {
     this._fn = fn;
@@ -14,7 +17,13 @@ class ReactiveEffect {
     return this._fn();
   }
   stop() {
-    cleanupEffect(this);
+    if (this.active) {
+      cleanupEffect(this);
+      if (this.onStop) {
+        this.onStop();
+      }
+      this.active = false;
+    }
   }
 }
 
@@ -37,12 +46,9 @@ function getDep(target, key) {
 }
 
 function cleanupEffect(effect) {
-  if (effect.active) {
-    effect.deps.forEach((dep) => {
-      dep.delete(effect);
-      effect.active = false;
-    });
-  }
+  effect.deps.forEach((dep) => {
+    dep.delete(effect);
+  });
 }
 
 export function track(target, key) {
@@ -70,6 +76,8 @@ let activeEffect;
 
 export function effect(fn, options: any = {}) {
   const _effect = new ReactiveEffect(fn, options.scheduler);
+  extend(_effect, options);
+
   // 先执行一次
   _effect.run();
 
