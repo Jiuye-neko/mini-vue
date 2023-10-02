@@ -1,4 +1,4 @@
-import { reactive } from '../src/reactive';
+import { reactive, isReactive } from '../src/reactive';
 
 describe('reactive', () => {
   it('reactive val should be change', () => {
@@ -7,5 +7,8 @@ describe('reactive', () => {
 
     expect(observed).not.toBe(original);
     expect(observed.foo).toBe(1);
+
+    expect(isReactive(observed)).toBe(true);
+    expect(isReactive(original)).toBe(false)
   });
 });

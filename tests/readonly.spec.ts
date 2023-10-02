@@ -1,4 +1,4 @@
-import { readonly } from '../src/reactive';
+import { isReadonly, readonly } from '../src/reactive';
 
 describe('readonly', () => {
   it('readonly', () => {
@@ -7,6 +7,9 @@ describe('readonly', () => {
 
     expect(val).not.toBe(original);
     expect(val.foo).toBe(1);
+
+    expect(isReadonly(val)).toBe(true)
+    expect(isReadonly(original)).toBe(false)
   });
   it('warn if readonly is set', () => {
     const original = readonly({ foo: 1 });
