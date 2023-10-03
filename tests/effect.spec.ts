@@ -63,8 +63,10 @@ describe('effect', () => {
 
     stop(runner);
     // original.foo++;
-    // 此处不应用自增，自增触发了 get 导致依赖被重新收集了
-    original.foo = 3;
+    // 此处不使用自增，自增触发了 get 导致依赖被重新收集了
+    // 优化 stop 处理边缘 case 解决依赖被重新收集的问题
+    // original.foo = 3;
+    original.foo++;
     expect(val).toBe(2);
 
     runner();
