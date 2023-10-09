@@ -1,4 +1,4 @@
-import { reactive, isReactive } from '../src/reactive';
+import { reactive, isReactive, isProxy } from '../src/reactive';
 
 describe('reactive', () => {
   it('reactive val should be change', () => {
@@ -9,16 +9,18 @@ describe('reactive', () => {
     expect(observed.foo).toBe(1);
 
     expect(isReactive(observed)).toBe(true);
-    expect(isReactive(original)).toBe(false)
+    expect(isReactive(original)).toBe(false);
+    expect(isProxy(observed)).toBe(true);
+    expect(isProxy(original)).toBe(false);
   });
 
   it('nested reactive', () => {
-    const original = { foo: 1, bar: ['array', 'object'], baz: { val: 2 }};
+    const original = { foo: 1, bar: ['array', 'object'], baz: { val: 2 } };
     const observed = reactive(original);
 
     expect(isReactive(observed.bar)).toBe(true);
     expect(isReactive(observed.baz)).toBe(true);
     expect(isReactive(original.baz)).toBe(false);
     expect(isReactive(original.bar)).toBe(false);
-  })
+  });
 });
