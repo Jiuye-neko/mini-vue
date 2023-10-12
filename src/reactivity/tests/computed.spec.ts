@@ -1,5 +1,5 @@
-import { computed } from '../src/computed';
-import { reactive } from '../src/reactive';
+import { computed } from '../computed';
+import { reactive } from '../reactive';
 
 describe('computed', () => {
   it('computed', () => {
@@ -11,7 +11,7 @@ describe('computed', () => {
     expect(age.value).toBe(1);
   });
 
-  it('should computed be lazily', () => {
+  it('should computed  be lazily', () => {
     const user = reactive({ age: 1 });
     const getter = jest.fn(() => {
       return user.age;

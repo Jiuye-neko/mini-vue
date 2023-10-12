@@ -1,4 +1,4 @@
-import { reactive, isReactive, isProxy } from '../src/reactive';
+import { reactive, isReactive, isProxy } from '../reactive';
 
 describe('reactive', () => {
   it('reactive val should be change', () => {

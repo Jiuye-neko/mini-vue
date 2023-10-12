@@ -1,4 +1,4 @@
-import { isProxy, isReadonly, readonly } from '../src/reactive';
+import { isProxy, isReadonly, readonly } from '../reactive';
 
 describe('readonly', () => {
   it('readonly', () => {
