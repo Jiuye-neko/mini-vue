@@ -22,7 +22,8 @@ function processElement(vnode: any, container: any) {
 }
 
 function mountElement(vnode: any, container: any) {
-  const el = document.createElement(vnode.type);
+  // 将 el 挂载到 vnode 上
+  const el = (vnode.el = document.createElement(vnode.type));
 
   const { children } = vnode;
   if (typeof children === 'string') {
@@ -55,12 +56,16 @@ function mountComponent(vnode: any, container: any) {
   const instance = createComponentInstance(vnode);
   setupComponent(instance);
 
-  setupRenderEffect(instance, container);
+  setupRenderEffect(instance, vnode, container);
 }
 
-function setupRenderEffect(instance: any, container: any) {
-  // 获取 subTree
-  const subTree = instance.render();
+function setupRenderEffect(instance: any, vnode: any, container: any) {
+  const proxy = instance.proxy;
+  // 获取 subTree，this 指向绑定为 proxy
+  const subTree = instance.render.call(proxy);
   // 递归处理 subTree
   patch(subTree, container);
+
+  // 挂载完成，将根节点的 el 挂载到 vnode 上
+  vnode.el = subTree.el;
 }
