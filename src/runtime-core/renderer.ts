@@ -1,6 +1,6 @@
 import { ShapeFlags } from '../shared/ShapeFlags';
-import { isObject } from '../shared/index';
 import { createComponentInstance, setupComponent } from './component';
+import { Fragment, Text } from './vnode';
 
 export function render(vnode, container) {
   // 调用 patch
@@ -8,14 +8,36 @@ export function render(vnode, container) {
 }
 
 function patch(vnode: any, container: any) {
-  // 判断当前的 vnode 是 Component 还是 Element 类型
-  if (vnode.shapeFlags & ShapeFlags.ELEMENT) {
-    processElement(vnode, container);
-  } else if (vnode.shapeFlags & ShapeFlags.STATEFUL_COMPONENT) {
-    // Component
-    // 开始处理 Component
-    processComponent(vnode, container);
+  const { type, shapeFlags } = vnode;
+  switch (type) {
+    case Fragment:
+      processFragment(vnode, container);
+      break;
+    case Text:
+      processText(vnode, container);
+      break;
+    default:
+      // 判断当前的 vnode 是 Component 还是 Element 类型
+      if (shapeFlags & ShapeFlags.ELEMENT) {
+        processElement(vnode, container);
+      } else if (shapeFlags & ShapeFlags.STATEFUL_COMPONENT) {
+        // Component
+        // 开始处理 Component
+        processComponent(vnode, container);
+      }
+      break;
   }
+}
+
+function processFragment(vnode: any, container: any) {
+  // 如果当前为 Fragment 类型，直接将子节点挂载到当前父节点上
+  mountChildren(vnode, container);
+}
+
+function processText(vnode: any, container: any) {
+  const { children } = vnode;
+  const textNode = (vnode.el = document.createTextNode(children));
+  container.append(textNode);
 }
 
 function processElement(vnode: any, container: any) {

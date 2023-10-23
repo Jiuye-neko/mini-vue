@@ -1,4 +1,4 @@
-import { h } from '../../lib/guide-mini-vue.esm.js';
+import { createTextVNode, h } from '../../lib/guide-mini-vue.esm.js';
 import { Foo } from './Foo.js';
 
 export const App = {
@@ -17,6 +17,6 @@ export const App = {
         footer: () => [h('p', {}, 'footer'), h('p', {}, '789')],
       }
     );
-    return h('div', {}, [app, foo]);
+    return h('div', {}, [app, foo, createTextVNode('think of me')]);
   },
 };
