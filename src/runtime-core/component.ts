@@ -34,10 +34,15 @@ function setupStatefulComponent(instance: any) {
 
   // 判断 setup 是否存在
   if (setup) {
+    setCurrentInstance(instance);
+
     // 存在则直接执行，获取返回值 setupResult
     const setupResult = setup(shallowReadonly(instance.props), {
       emit: instance.emit,
     });
+
+    setCurrentInstance(null);
+
     // 处理 setupResult
     handleSetupResult(instance, setupResult);
   }
@@ -61,4 +66,14 @@ function finishComponentSetup(instance: any) {
   if (Component.render) {
     instance.render = Component.render;
   }
+}
+
+let currentInstance = null;
+
+export function getCurrentInstance() {
+  return currentInstance;
+}
+
+export function setCurrentInstance(instance) {
+  currentInstance = instance;
 }
