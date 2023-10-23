@@ -2,12 +2,15 @@ import { shallowReadonly } from '../reactivity/reactive';
 import { emit } from './componentEmit';
 import { initProps } from './componentProps';
 import { PublicInstanceProxyHandlers } from './componentPublicInstance';
+import { initSlots } from './componentSlots';
 
 export function createComponentInstance(vnode) {
   const component = {
     vnode,
+    type: vnode.type,
     setupState: {},
     props: {},
+    slots: {},
     emit: () => {},
   };
   component.emit = emit.bind(null, component) as any;
@@ -16,13 +19,13 @@ export function createComponentInstance(vnode) {
 
 export function setupComponent(instance) {
   initProps(instance, instance.vnode.props);
-  // TODO initSlots
+  initSlots(instance, instance.vnode.children);
   setupStatefulComponent(instance);
 }
 
 function setupStatefulComponent(instance: any) {
   // 获取存在 instance.vnode.type 上的 component
-  const Component = instance.vnode.type;
+  const Component = instance.type;
 
   // 组件代理，用于将属性绑定到 this 上
   instance.proxy = new Proxy({ _: instance }, PublicInstanceProxyHandlers);
@@ -54,7 +57,7 @@ function handleSetupResult(instance: any, setupResult: any) {
 
 function finishComponentSetup(instance: any) {
   // 获取 instance 上的 Component
-  const Component = instance.vnode.type;
+  const Component = instance.type;
   if (Component.render) {
     instance.render = Component.render;
   }
